@@ -1,8 +1,6 @@
 // lib/db.ts
 // lib/prisma.ts
 import "dotenv/config";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { Pool } from "@neondatabase/serverless";
