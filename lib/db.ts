@@ -1,5 +1,6 @@
 // lib/db.ts
 // lib/prisma.ts
+import "server-only"
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";

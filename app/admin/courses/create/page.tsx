@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
@@ -13,9 +14,13 @@ import { Input } from "@/components/ui/input";
 import slugify from "slugify";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor} from "@/components/rich-text-editor/Editor"
+import { Uploader } from "@/components/file-uploader/Uploader";
 
 
 export default function CourseCreationPage() {
+    const [mounted, setMounted] = useState(false)
+
     const form = useForm<
         z.input<typeof courseSchema>,
         unknown,
@@ -39,7 +44,16 @@ export default function CourseCreationPage() {
     function onSubmit(values: courseSchemaType) {
     
     console.log(values)
-  }
+    }
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (!mounted) {
+        return null
+    }
+
     return (
         <>
             <div className="flex gap-4 items-center">
@@ -105,7 +119,7 @@ export default function CourseCreationPage() {
                                 <FormItem className="w-full">
                                     <FormLabel>Description</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="Description" className="min-h-30" {...field} />
+                                        <RichTextEditor field={field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -114,7 +128,8 @@ export default function CourseCreationPage() {
                                 <FormItem className="w-full">
                                     <FormLabel>Thumbnail image</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Thumbnail url" {...field} />
+                                        <Uploader/>
+                                        {/* <Input placeholder="Thumbnail url" {...field} /> */}
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
