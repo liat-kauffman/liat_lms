@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
 import { courseCategories, courseLevels, courseSchema, courseSchemaType, courseStatus } from "@/lib/zodSchema";
-import { ArrowLeft, PlusIcon, Sparkles } from "lucide-react";
+import { ArrowLeft, Loader2, PlusIcon, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useForm, } from "react-hook-form";
 import * as z from "zod";
@@ -16,10 +16,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { RichTextEditor} from "@/components/rich-text-editor/Editor"
 import { Uploader } from "@/components/file-uploader/Uploader";
+import { tryCatch } from "@/hooks/try-catch";
+import { CreateCourse } from "./actions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 
 export default function CourseCreationPage() {
     const [mounted, setMounted] = useState(false)
+    const [pending, startTransition] = useTransition()
+    const router = useRouter()
+
 
     const form = useForm<
         z.input<typeof courseSchema>,
@@ -42,8 +49,21 @@ export default function CourseCreationPage() {
     }) 
 
     function onSubmit(values: courseSchemaType) {
-    
-    console.log(values)
+        startTransition(async () => {
+            const { data: result, error } = await tryCatch(CreateCourse(values))
+            if (error) {
+                toast.error("An unexpected error occured, Please try again.")
+                return
+            }
+
+            if (result.status === 'success') {
+                toast.success(result.status)
+                form.reset()
+                router.push('/admin/courses')
+            } else if (result.status === 'error') {
+                toast.error(result.message)
+            }
+        })
     }
 
     useEffect(() => {
@@ -119,7 +139,7 @@ export default function CourseCreationPage() {
                                 <FormItem className="w-full">
                                     <FormLabel>Description</FormLabel>
                                     <FormControl>
-                                        <RichTextEditor field={field} />
+                                        <RichTextEditor field={field as any} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -215,8 +235,17 @@ export default function CourseCreationPage() {
                                     <FormMessage/>
                                 </FormItem>
                             )} />
-                            <Button>
-                                Create Course <PlusIcon/>
+                            <Button type="submit" disabled={pending}>
+                                {pending ? (
+                                    <>
+                                        Creating...
+                                        <Loader2 className="animate-spin ml-1"/>
+                                    </>
+                                ) : (
+                                    <>
+                                        Create Course <PlusIcon className="ml-1" size={16}/>
+                                    </>  
+                                )}
                             </Button>
                         </form>
                     </Form>

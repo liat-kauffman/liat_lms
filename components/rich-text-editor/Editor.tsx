@@ -4,9 +4,9 @@ import {EditorContent, useEditor} from '@tiptap/react'
 import { StarterKit } from '@tiptap/starter-kit'
 import { Menubar } from './Menubar'
 import TextAlign from '@tiptap/extension-text-align'
-import { json } from 'zod'
+import type { ControllerRenderProps } from 'react-hook-form'
 
-export function RichTextEditor( {field}: {field: any}) {
+export function RichTextEditor({ field }: { field: ControllerRenderProps<{ description: string }, "description"> }) {
     const editor = useEditor({
         extensions: [StarterKit.configure({
             heading: {
@@ -24,9 +24,9 @@ export function RichTextEditor( {field}: {field: any}) {
             }
         },
         onUpdate: ({ editor }) => {
-            field.onChange(JSON.stringify(editor.getJSON))
+            field.onChange(JSON.stringify(editor.getJSON()))
         },
-        content: field.value ? JSON.parse(field.value): "<p>Hello world</p>", 
+        content: field.value ? JSON.parse(field.value) : "<p></p>",
         immediatelyRender: false
     })
 
